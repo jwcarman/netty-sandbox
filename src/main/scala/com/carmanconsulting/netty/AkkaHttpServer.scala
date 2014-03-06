@@ -10,9 +10,7 @@ import java.util.concurrent.{Executors, ExecutorService}
 
 object AkkaHttpServer {
   def main(args: Array[String]) {
-    val executor:ExecutorService = Executors.newFixedThreadPool(10)
-
-    val parentGroup: NioEventLoopGroup = new NioEventLoopGroup(100)
+    val parentGroup: NioEventLoopGroup = new NioEventLoopGroup(1)
     val childGroup: NioEventLoopGroup = new NioEventLoopGroup()
     val codec: HttpServerCodec = new HttpServerCodec
     val handler: AkkaHttpHandler = new AkkaHttpHandler
