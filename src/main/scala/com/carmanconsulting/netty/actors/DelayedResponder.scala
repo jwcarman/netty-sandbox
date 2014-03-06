@@ -15,7 +15,7 @@ class DelayedResponder extends Actor {
   override def receive: Actor.Receive = LoggingReceive {
     case req: HttpRequest =>
       implicit val dispatcher = context.system.dispatcher
-      context.system.scheduler.scheduleOnce(45 seconds, self, DelayedResponse(sender))
+      context.system.scheduler.scheduleOnce(10 seconds, self, DelayedResponse(sender))
     case DelayedResponse(receiver) =>
       val response = new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.copiedBuffer("Timeout!", CharsetUtil.UTF_8))
       response.headers.set(CONTENT_TYPE, "text/plain")

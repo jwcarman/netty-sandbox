@@ -11,7 +11,7 @@ import io.netty.handler.codec.http.HttpResponseStatus._
 
 class ResponseWriter(ctx: ChannelHandlerContext) extends Actor {
   val logger = LoggerFactory.getLogger(classOf[ResponseWriter])
-  context.setReceiveTimeout(30 seconds)
+  context.setReceiveTimeout(5 seconds)
 
   override def receive: Actor.Receive = LoggingReceive {
     case resp: HttpResponse =>
