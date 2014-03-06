@@ -11,7 +11,7 @@ import io.netty.util.CharsetUtil
 import io.netty.handler.codec.http.HttpHeaders.Names._
 import com.carmanconsulting.netty.messages.DelayedResponse
 
-class DelayedResponder() extends Actor {
+class DelayedResponder extends Actor {
   override def receive: Actor.Receive = LoggingReceive {
     case req: HttpRequest =>
       implicit val dispatcher = context.system.dispatcher
