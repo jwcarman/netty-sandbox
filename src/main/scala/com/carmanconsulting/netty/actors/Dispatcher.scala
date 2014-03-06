@@ -10,6 +10,7 @@ class Dispatcher extends Actor {
   var handlers = collection.mutable.Map[String,ActorRef]().withDefaultValue(context.actorOf(Props[NotFound]))
   handlers("/") = context.actorOf(Props[Hello])
   handlers("/foo") = context.actorOf(PlainTextResponder.props("bar"))
+  handlers("/timeout") = context.actorOf(Props[DelayedResponder])
 
   override def receive: Actor.Receive = LoggingReceive {
     case req: NettyHttpMessage =>
