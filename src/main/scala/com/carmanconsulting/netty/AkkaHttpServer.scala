@@ -35,7 +35,7 @@ object AkkaHttpServer {
           pipeline.addLast("handler", new AkkaHttpHandler(dispatcher))
         }
       })
-      val ch: Channel = bootstrap.bind(8080).sync.channel
+      val ch: Channel = bootstrap.bind(8888).sync.channel
       ch.closeFuture.sync
     }
     finally {
