@@ -14,7 +14,7 @@ object AkkaHttpServer {
   def main(args: Array[String]) {
     InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory())
     ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED)
-    val parentGroup = new NioEventLoopGroup(1)
+    val parentGroup = new NioEventLoopGroup()
     val childGroup = new NioEventLoopGroup()
     val handler = new AkkaHttpHandler()
     try {
