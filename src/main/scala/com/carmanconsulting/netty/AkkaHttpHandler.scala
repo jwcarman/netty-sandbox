@@ -6,7 +6,9 @@ import io.netty.handler.codec.http.FullHttpRequest
 import org.slf4j.LoggerFactory
 import com.carmanconsulting.netty.actors.Dispatcher
 import com.carmanconsulting.netty.messages.NettyHttpMessage
+import io.netty.channel.ChannelHandler.Sharable
 
+@Sharable
 class AkkaHttpHandler extends SimpleChannelInboundHandler[FullHttpRequest] {
   val logger = LoggerFactory.getLogger(classOf[AkkaHttpHandler])
   val system = ActorSystem("http-server")
