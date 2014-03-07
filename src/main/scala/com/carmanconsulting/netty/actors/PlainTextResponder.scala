@@ -20,5 +20,5 @@ class PlainTextResponder(message: String) extends Actor {
 }
 
 object PlainTextResponder {
-  def props(message:String) = Props(classOf[PlainTextResponder], message)
+  def props(message: String) = Props(classOf[PlainTextResponder], message)
 }

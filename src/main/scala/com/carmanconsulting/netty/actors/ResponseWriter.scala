@@ -15,7 +15,7 @@ class ResponseWriter(ctx: ChannelHandlerContext) extends Actor {
 
   override def receive: Actor.Receive = LoggingReceive {
     case resp: HttpResponse =>
-      logger.info("Response received, writing to channel...\n{}", resp)
+      logger.info("Response received, writing to channel...")
       respondAndStop(resp)
     case ReceiveTimeout =>
       logger.warn("Timed out waiting for response.")
