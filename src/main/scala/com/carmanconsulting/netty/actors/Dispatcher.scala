@@ -3,6 +3,7 @@ package com.carmanconsulting.netty.actors
 import akka.actor.{ActorRef, Props, Actor}
 import akka.event.LoggingReceive
 import com.carmanconsulting.netty.messages.NettyHttpMessage
+import io.netty.handler.codec.http.QueryStringDecoder
 
 class Dispatcher extends Actor {
 
@@ -13,9 +14,10 @@ class Dispatcher extends Actor {
   handlers("/timeout") = context.actorOf(Props[DelayedResponder])
 
   override def receive: Actor.Receive = LoggingReceive {
-    case req: NettyHttpMessage =>
-      val responseWriter = context.actorOf(Props(classOf[ResponseWriter], req.context))
-      val handler = handlers(req.request.getUri)
-      handler.tell(req.request, responseWriter)
+    case message: NettyHttpMessage =>
+      val responseWriter = context.actorOf(Props(classOf[ResponseWriter], message.context))
+      val decoder: QueryStringDecoder = new QueryStringDecoder(message.request.path)
+      val handler = handlers(decoder.path())
+      handler.tell(message.request, responseWriter)
   }
 }

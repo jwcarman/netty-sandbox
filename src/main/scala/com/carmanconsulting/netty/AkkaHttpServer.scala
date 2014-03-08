@@ -5,18 +5,19 @@ import io.netty.bootstrap.ServerBootstrap
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.channel._
 import io.netty.channel.socket.SocketChannel
-import io.netty.handler.codec.http.{HttpContentCompressor, HttpResponseEncoder, HttpRequestDecoder, HttpObjectAggregator}
+import io.netty.handler.codec.http._
 import io.netty.util.internal.logging.{Slf4JLoggerFactory, InternalLoggerFactory}
-import io.netty.util.ResourceLeakDetector
-import io.netty.handler.stream.ChunkedWriteHandler
+import akka.actor.{Props, ActorSystem}
+import com.carmanconsulting.netty.actors.Dispatcher
 
 object AkkaHttpServer {
   def main(args: Array[String]) {
     InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory())
-    ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED)
     val parentGroup = new NioEventLoopGroup()
     val childGroup = new NioEventLoopGroup()
-    val handler = new AkkaHttpHandler()
+    val system = ActorSystem("http-server")
+    val recipient = system.actorOf(Props[Dispatcher])
+
     try {
       val bootstrap: ServerBootstrap = new ServerBootstrap()
       bootstrap.group(parentGroup, childGroup)
@@ -24,16 +25,12 @@ object AkkaHttpServer {
       bootstrap.childHandler(new ChannelInitializer[SocketChannel]() {
         override def initChannel(ch: SocketChannel): Unit = {
           val pipeline: ChannelPipeline = ch.pipeline
-          pipeline.addLast("decoder", new HttpRequestDecoder())
-          pipeline.addLast("aggregator", new HttpObjectAggregator(1048576))
-          pipeline.addLast("encoder", new HttpResponseEncoder())
-          pipeline.addLast("chunkedWriter", new ChunkedWriteHandler())
-          pipeline.addLast("deflater", new HttpContentCompressor())
-          pipeline.addLast("handler", handler)
+          pipeline.addLast("codec", new HttpServerCodec())
+          pipeline.addLast("handler", AkkaHttpHandler(recipient))
         }
       })
-      val ch: Channel = bootstrap.bind(8888).sync.channel
-      ch.closeFuture.sync
+      val channel: Channel = bootstrap.bind(8888).sync.channel
+      channel.closeFuture.sync
     }
     finally {
       parentGroup.shutdownGracefully()

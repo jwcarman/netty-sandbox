@@ -4,13 +4,12 @@ import akka.actor.{ReceiveTimeout, Actor}
 import io.netty.channel.{ChannelFutureListener, ChannelHandlerContext}
 import akka.event.LoggingReceive
 import io.netty.handler.codec.http.{DefaultFullHttpResponse, HttpResponse}
-import org.slf4j.LoggerFactory
 import scala.concurrent.duration._
 import io.netty.handler.codec.http.HttpVersion._
 import io.netty.handler.codec.http.HttpResponseStatus._
+import com.typesafe.scalalogging.slf4j.Logging
 
-class ResponseWriter(ctx: ChannelHandlerContext) extends Actor {
-  val logger = LoggerFactory.getLogger(classOf[ResponseWriter])
+class ResponseWriter(ctx: ChannelHandlerContext) extends Actor with Logging {
   context.setReceiveTimeout(5 seconds)
 
   override def receive: Actor.Receive = LoggingReceive {

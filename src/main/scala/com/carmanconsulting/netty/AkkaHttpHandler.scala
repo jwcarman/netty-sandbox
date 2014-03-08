@@ -1,25 +1,30 @@
 package com.carmanconsulting.netty
 
-import akka.actor.{ActorSystem, Props}
-import io.netty.channel.{SimpleChannelInboundHandler, ChannelHandlerContext}
-import io.netty.handler.codec.http.FullHttpRequest
-import org.slf4j.LoggerFactory
-import com.carmanconsulting.netty.actors.Dispatcher
+import akka.actor.ActorRef
+import io.netty.channel.ChannelHandlerContext
+import io.netty.handler.codec.http._
 import com.carmanconsulting.netty.messages.NettyHttpMessage
-import io.netty.channel.ChannelHandler.Sharable
+import com.carmanconsulting.netty.util.HttpRequestMessageBuilder
 
-@Sharable
-class AkkaHttpHandler extends SimpleChannelInboundHandler[FullHttpRequest] {
-  val logger = LoggerFactory.getLogger(classOf[AkkaHttpHandler])
-  val system = ActorSystem("http-server")
-  val dispatcher = system.actorOf(Props[Dispatcher])
+class AkkaHttpHandler(recipient: ActorRef) extends HttpHandler {
 
-  override def channelReadComplete(ctx: ChannelHandlerContext): Unit = {
-    ctx.flush()
+  var builder: HttpRequestMessageBuilder = null
+
+  override def onHttpRequest(ctx: ChannelHandlerContext, request: HttpRequest): Unit = {
+    builder = new HttpRequestMessageBuilder(request)
   }
 
-  override def channelRead0(ctx: ChannelHandlerContext, req: FullHttpRequest): Unit = {
-    logger.info("Received FullHttpRequest")
-    dispatcher ! new NettyHttpMessage(ctx, req)
+  override def onHttpContent(ctx: ChannelHandlerContext, content: HttpContent): Unit = {
+    builder.onContent(content)
   }
+
+  override def onLastHttpContent(ctx: ChannelHandlerContext, last: LastHttpContent): Unit = {
+    builder.onContent(last)
+    recipient ! new NettyHttpMessage(ctx, builder.build())
+    builder = null
+  }
+}
+
+object AkkaHttpHandler {
+  def apply(recipient: ActorRef) = new AkkaHttpHandler(recipient)
 }
