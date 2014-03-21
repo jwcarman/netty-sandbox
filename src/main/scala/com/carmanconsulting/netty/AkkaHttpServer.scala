@@ -9,6 +9,7 @@ import io.netty.handler.codec.http._
 import io.netty.util.internal.logging.{Slf4JLoggerFactory, InternalLoggerFactory}
 import akka.actor.{Props, ActorSystem}
 import com.carmanconsulting.netty.actors.Dispatcher
+import akka.routing.RoundRobinPool
 
 object AkkaHttpServer {
   def main(args: Array[String]) {
@@ -16,7 +17,7 @@ object AkkaHttpServer {
     val parentGroup = new NioEventLoopGroup()
     val childGroup = new NioEventLoopGroup()
     val system = ActorSystem("http-server")
-    val recipient = system.actorOf(Props[Dispatcher])
+    val recipient = system.actorOf(Props[Dispatcher].withRouter(RoundRobinPool(10)))
 
     try {
       val bootstrap: ServerBootstrap = new ServerBootstrap()
